@@ -27,6 +27,9 @@ body[data-seccion="notas"]    { --acento: var(--ambar);  --acento-hover: #e6b23f
 
 * { box-sizing: border-box; }
 
+/* Lo que esté oculto con [hidden], oculto queda, aunque otra regla le ponga display */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   min-height: 100vh;
