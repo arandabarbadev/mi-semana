@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi semana</title>
+  <meta name="description" content="Tu semana completa: horario, deberes, exámenes y notas en una sola app.">
+  <meta name="theme-color" content="#0d1017">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗓️</text></svg>">
+  <link rel="apple-touch-icon" href="./icono-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body data-seccion="hoy">
+  <div class="contenedor">
+
+    <header class="cabecera">
+      <div class="cabecera-titulo">
+        <h1>Mi <span class="acento">semana</span></h1>
+        <button id="btn-cuenta" class="btn-icono" title="Tu cuenta" aria-label="Tu cuenta">👤</button>
+      </div>
+      <p id="fecha-hoy" class="fecha"></p>
+      <p id="estado-sync" class="estado" aria-live="polite"></p>
+    </header>
+
+    <nav class="pestanas" id="pestanas" aria-label="Secciones">
+      <button data-seccion="hoy" class="activa">🏠 Hoy</button>
+      <button data-seccion="horario">📅 Horario</button>
+      <button data-seccion="deberes">📝 Deberes <span class="contador" id="cont-deberes"></span></button>
+      <button data-seccion="examenes">📚 Exámenes <span class="contador" id="cont-examenes"></span></button>
+      <button data-seccion="notas">🧮 Notas</button>
+    </nav>
+
+    <!-- ============ HOY ============ -->
+    <main id="seccion-hoy" class="seccion activa" aria-label="Hoy">
+      <section class="tarjeta" id="tarjeta-hoy-clase">
+        <h2 id="hoy-saludo"></h2>
+        <ul class="lista-horario" id="hoy-clases"></ul>
+        <h3 class="subtitulo" id="hoy-tarde-titulo">🌤️ Por la tarde</h3>
+        <ul class="lista-horario" id="hoy-tarde"></ul>
+        <p class="vacio" id="hoy-clases-vacio"></p>
+      </section>
+
+      <section class="tarjeta tarjeta-destacada" id="tarjeta-proximo-examen">
+        <h2>📚 Próximo examen</h2>
+        <div class="cuenta" id="hoy-examen"></div>
+      </section>
+
+      <section class="tarjeta tarjeta-destacada azul" id="tarjeta-proxima-entrega">
+        <h2>📦 Próxima entrega</h2>
+        <div class="cuenta" id="hoy-entrega"></div>
+      </section>
+
+      <section class="tarjeta" id="tarjeta-hoy-deberes">
+        <h2>📝 Deberes que se echan encima</h2>
+        <ul class="lista-deberes" id="hoy-deberes"></ul>
+        <p class="vacio" id="hoy-deberes-vacio"></p>
+      </section>
+
+      <section class="tarjeta" id="tarjeta-hoy-notas">
+        <h2>🧮 Tus notas</h2>
+        <div id="hoy-notas"></div>
+      </section>
+    </main>
+
+    <!-- ============ HORARIO ============ -->
+    <section id="seccion-horario" class="seccion" hidden aria-label="Horario">
+      <nav class="pestanas-dias" id="dias" aria-label="Día de la semana"></nav>
+
+      <div id="horario-laboral">
+        <section class="tarjeta">
+          <h2>🏫 Clases</h2>
+          <ul class="lista-horario" id="lista-clases"></ul>
+          <form class="form-horario" id="form-clases">
+            <input type="time" id="clases-hora" required aria-label="Hora">
+            <input type="text" id="clases-texto" maxlength="40" placeholder="Asignatura o cosa" required>
+            <button type="submit" class="btn-primario">Añadir</button>
+          </form>
+        </section>
+        <section class="tarjeta">
+          <h2>🌤️ Por la tarde</h2>
+          <ul class="lista-horario" id="lista-tarde"></ul>
+          <form class="form-horario" id="form-tarde">
+            <input type="time" id="tarde-hora" required aria-label="Hora">
+            <input type="text" id="tarde-texto" maxlength="40" placeholder="Actividad, entrenamiento..." required>
+            <button type="submit" class="btn-primario">Añadir</button>
+          </form>
+        </section>
+      </div>
+
+      <div id="horario-finde" hidden>
+        <section class="tarjeta">
+          <h2>📋 Tareas del finde <span class="contador" id="cont-tareas-finde"></span></h2>
+          <ul class="lista-tareas" id="lista-tareas-finde"></ul>
+          <form class="form-linea" id="form-tareas-finde">
+            <input type="text" id="tareas-finde-texto" maxlength="60" placeholder="Plan, tarea, lo que sea..." required>
+            <button type="submit" class="btn-primario">Añadir</button>
+          </form>
+          <button class="btn-texto" id="btn-quitar-hechas">Quitar tareas hechas</button>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ DEBERES ============ -->
+    <section id="seccion-deberes" class="seccion" hidden aria-label="Deberes">
+      <nav class="pestanas-internas" id="deberes-tabs" aria-label="Estado de los deberes">
+        <button data-tab="pendientes" class="activa">Pendientes <span class="contador" id="cont-deberes-pend"></span></button>
+        <button data-tab="completados">Completados <span class="contador" id="cont-deberes-comp"></span></button>
+      </nav>
+
+      <section class="tarjeta" id="deberes-pendientes">
+        <ul class="lista-deberes" id="lista-deberes-pend"></ul>
+        <p class="vacio" id="deberes-pend-vacio"></p>
+        <form class="form-deber" id="form-deber">
+          <input type="text" id="deber-asignatura" maxlength="30" placeholder="Asignatura" list="sugerencias-asignaturas" required>
+          <datalist id="sugerencias-asignaturas"></datalist>
+          <input type="date" id="deber-fecha" required>
+          <input type="text" id="deber-texto" maxlength="140" placeholder="¿Qué hay que hacer?" required>
+          <button type="submit" class="btn-primario">Añadir</button>
+        </form>
+      </section>
+
+      <section class="tarjeta" id="deberes-completados" hidden>
+        <ul class="lista-deberes" id="lista-deberes-comp"></ul>
+        <p class="vacio" id="deberes-comp-vacio"></p>
+        <button class="btn-texto" id="btn-quitar-completadas">Quitar todas las completadas</button>
+      </section>
+    </section>
+
+    <!-- ============ EXÁMENES ============ -->
+    <section id="seccion-examenes" class="seccion" hidden aria-label="Exámenes y entregas">
+      <nav class="pestanas-internas" id="examenes-tabs" aria-label="Tipo">
+        <button data-tab="examenes" class="activa">📝 Exámenes <span class="contador" id="cont-examenes-pend"></span></button>
+        <button data-tab="entregas">📦 Entregas <span class="contador" id="cont-entregas-pend"></span></button>
+      </nav>
+
+      <div id="examenes-lista">
+        <section class="tarjeta">
+          <div class="cabecera-seccion">
+            <h2>📝 Exámenes</h2>
+            <button class="btn-primario" data-abrir-modal="examen">＋</button>
+          </div>
+          <p class="tranquilo" id="aviso-examenes" hidden>Es hoy. Respira hondo, tú puedes 💪</p>
+          <ul class="lista-cuenta" id="lista-examenes"></ul>
+          <details id="examenes-pasados" hidden>
+            <summary>✅ Pasados (<span id="num-examenes-pasados"></span>)</summary>
+            <ul class="lista-cuenta pasados" id="lista-examenes-pasados"></ul>
+          </details>
+        </section>
+      </div>
+
+      <div id="entregas-lista" hidden>
+        <section class="tarjeta">
+          <div class="cabecera-seccion">
+            <h2>📦 Entregas</h2>
+            <button class="btn-primario azul" data-abrir-modal="entrega">＋</button>
+          </div>
+          <p class="tranquilo" id="aviso-entregas" hidden>Es hoy. Tú puedes 🚀</p>
+          <ul class="lista-cuenta azul" id="lista-entregas"></ul>
+          <details id="entregas-pasadas" hidden>
+            <summary>✅ Pasadas (<span id="num-entregas-pasadas"></span>)</summary>
+            <ul class="lista-cuenta pasados azul" id="lista-entregas-pasadas"></ul>
+          </details>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ NOTAS ============ -->
+    <section id="seccion-notas" class="seccion" hidden aria-label="Notas">
+      <nav class="pestanas-internas" id="notas-tabs" aria-label="Vista de notas">
+        <button data-tab="calculadora" class="activa">🧮 Calculadora</button>
+        <button data-tab="medias">📊 Medias</button>
+      </nav>
+
+      <div id="notas-calculadora">
+        <div class="cabecera-seccion arriba">
+          <button class="btn-primario" id="btn-nueva-asignatura">＋ Añadir asignatura</button>
+        </div>
+        <div id="lista-asignaturas"></div>
+      </div>
+
+      <div id="notas-medias" hidden>
+        <div id="medias-contenido"></div>
+      </div>
+    </section>
+
+    <!-- ============ PANEL CUENTA ============ -->
+    <div class="overlay" id="panel-cuenta" hidden>
+      <div class="modal">
+        <h2>Tu cuenta</h2>
+        <div id="cuenta-perfil" hidden>
+          <p class="cuenta-nombre" id="cuenta-nombre"></p>
+          <p class="estado" id="cuenta-correo"></p>
+        </div>
+        <button class="btn-primario bloque" id="btn-login">☁️ Entrar con Google</button>
+        <button class="btn-texto bloque" id="btn-importar" hidden>⬇️ Traer datos de mis otras apps</button>
+        <button class="btn-texto bloque" id="btn-logout" hidden>Salir</button>
+        <button class="btn-cerrar" id="btn-cerrar-cuenta">✕</button>
+        <p class="nota-cuenta" id="nota-cuenta">Sin sesión, tus datos se guardan solo en este navegador.</p>
+      </div>
+    </div>
+
+    <!-- ============ MODAL GENÉRICO ============ -->
+    <div class="overlay" id="overlay-modal" hidden>
+      <div class="modal">
+        <h2 id="modal-titulo"></h2>
+        <form id="modal-form">
+          <div id="modal-campos"></div>
+          <p class="error" id="modal-error" hidden></p>
+          <div class="modal-botones">
+            <button type="button" class="btn-texto" id="modal-cancelar">Cancelar</button>
+            <button type="submit" class="btn-primario">Guardar</button>
+          </div>
+        </form>
+        <button class="btn-cerrar" id="modal-cerrar">✕</button>
+      </div>
+    </div>
+
+    <footer class="pie">hecho por Rafa 🚀</footer>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
