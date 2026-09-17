@@ -118,7 +118,17 @@ enCambiarSesion((user) => {
   dibujarCuenta(user);
   if (user) {
     estado('☁️ conectando…');
+    // Si la nube no responde en 12 s, avisamos claro y dejamos el detalle en consola
+    let nubeRespondio = false;
+    const despedida = setTimeout(() => {
+      if (!nubeRespondio) {
+        estado('⚠️ la nube no responde: pulsa F12 → Consola y cuéntame lo rojo');
+        console.warn('mi-semana: Firestore no respondió en 12 s. Último error:', window.__msError || 'ninguno');
+      }
+    }, 12000);
+    const marcarRespuesta = () => { nubeRespondio = true; clearTimeout(despedida); };
     escucharSemana(user.uid, (remoto) => {
+      marcarRespuesta();
       if (remoto === null) {
         // Nube vacía y hay datos aquí: los subimos ("mudanza")
         if (datos.modificado > 0) { estado('☁️ subiendo tus datos…'); subirNube(); }
@@ -136,8 +146,9 @@ enCambiarSesion((user) => {
         else estado('☁️ sincronizada');
       }
     }, (s) => {
+      marcarRespuesta();
       if (s === 'conectado') { if (!uid) estado('⚠️ sesión perdida'); }
-      else estado('⚠️ ' + s);
+      else { window.__msError = s; estado('⚠️ ' + s); }
     });
   } else {
     estado('modo local: solo se guarda en este navegador');
