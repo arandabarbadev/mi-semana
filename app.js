@@ -121,8 +121,8 @@ enCambiarSesion((user) => {
     escucharSemana(user.uid, (remoto) => {
       if (remoto === null) {
         // Nube vacía y hay datos aquí: los subimos ("mudanza")
-        if (datos.modificado > 0) subirNube();
-        else estado('☁️ sincronizada');
+        if (datos.modificado > 0) { estado('☁️ subiendo tus datos…'); subirNube(); }
+        else estado('☁️ sincronizada (nube vacía)');
       } else if ((remoto.modificado || 0) > datos.modificado) {
         // La nube está más nueva: bajamos
         datos = { ...estadoVacio(), ...remoto };
@@ -132,11 +132,12 @@ enCambiarSesion((user) => {
         estado('⬇️ descargada de la nube');
       } else {
         ultimaSubida = remoto.modificado || 0;
-        subirNube(); // por si lo de aquí es más nuevo
+        if (datos.modificado > ultimaSubida) { estado('☁️ subiendo…'); subirNube(); }
+        else estado('☁️ sincronizada');
       }
     }, (s) => {
-      if (s === 'conectado' && !uid) estado('⚠️ sesión perdida');
-      else if (s !== 'conectado') estado('⚠️ ' + s);
+      if (s === 'conectado') { if (!uid) estado('⚠️ sesión perdida'); }
+      else estado('⚠️ ' + s);
     });
   } else {
     estado('modo local: solo se guarda en este navegador');
