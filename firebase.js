@@ -26,8 +26,9 @@ const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 });
 
-// Mi semana guarda TODO en un único documento: misemanas/{uid}
-const docSemana = (uid) => doc(db, 'misemanas', uid);
+// Mi semana guarda TODO en un único documento: users/{uid}/semana
+// (un camino que las reglas del proyecto ya permiten, el mismo que usan notas/examenes)
+const docSemana = (uid) => doc(db, 'users', uid, 'semana');
 
 // ---- Sesión ----
 
