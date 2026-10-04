@@ -976,5 +976,10 @@ setInterval(() => {
 
 // Service worker (solo funciona publicado en http/https)
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  // Cuando llegue una versión nueva, la app se recarga sola (una sola vez)
+  let recargado = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!recargado) { recargado = true; location.reload(); }
+  });
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
 }
