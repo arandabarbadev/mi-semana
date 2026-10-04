@@ -31,7 +31,7 @@
     <nav class="pestanas" id="pestanas" aria-label="Secciones">
       <button data-seccion="hoy" class="activa">Hoy</button>
       <button data-seccion="horario">Horario</button>
-      <button data-seccion="deberes">Deberes <span class="contador" id="cont-deberes"></span></button>
+      <button data-seccion="deberes">Cosas que hacer <span class="contador" id="cont-deberes"></span></button>
       <button data-seccion="examenes">Exámenes <span class="contador" id="cont-examenes"></span></button>
       <button data-seccion="notas">Notas</button>
     </nav>
@@ -57,7 +57,7 @@
       </section>
 
       <section class="tarjeta" id="tarjeta-hoy-deberes">
-        <h2>Deberes para ya</h2>
+        <h2>Cosas que hacer</h2>
         <ul class="lista-deberes" id="hoy-deberes"></ul>
         <p class="vacio" id="hoy-deberes-vacio"></p>
       </section>
@@ -71,6 +71,14 @@
     <!-- ============ HORARIO ============ -->
     <section id="seccion-horario" class="seccion" hidden aria-label="Horario">
       <nav class="pestanas-dias" id="dias" aria-label="Día de la semana"></nav>
+
+      <div id="horario-finde" hidden>
+        <section class="tarjeta finde-mensaje">
+          <h2>Es finde</h2>
+          <p class="frase">El esfuerzo de hoy es el éxito del mañana.</p>
+          <p class="suave">Descansa. Tus cosas que hacer están en su pestaña.</p>
+        </section>
+      </div>
 
       <div id="horario-laboral">
         <section class="tarjeta">
@@ -94,8 +102,8 @@
       </div>
     </section>
 
-    <!-- ============ DEBERES (deberes + cosas que hacer) ============ -->
-    <section id="seccion-deberes" class="seccion" hidden aria-label="Deberes y cosas que hacer">
+    <!-- ============ COSAS QUE HACER (deberes + cosas) ============ -->
+    <section id="seccion-deberes" class="seccion" hidden aria-label="Cosas que hacer">
       <nav class="pestanas-internas" id="deberes-tabs" aria-label="Estado de los deberes">
         <button data-tab="pendientes" class="activa">Pendientes <span class="contador" id="cont-deberes-pend"></span></button>
         <button data-tab="completados">Completados <span class="contador" id="cont-deberes-comp"></span></button>

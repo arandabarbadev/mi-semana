@@ -285,19 +285,30 @@ function saludo() {
 function dibujarHoy() {
   $('#hoy-saludo').textContent = saludo();
 
-  const dia = datos.horario[diaDeHoy()];
-  const clases = [...dia.clases].sort((a, b) => a.hora.localeCompare(b.hora));
-  const tarde = [...dia.tarde].sort((a, b) => a.hora.localeCompare(b.hora));
+  if (esFinde(diaDeHoy())) {
+    // Fin de semana: ni clases ni tarde, solo el mensaje de motivación
+    $('#hoy-clases').innerHTML = '';
+    $('#hoy-tarde').innerHTML = '';
+    $('#hoy-tarde-titulo').hidden = true;
+    $('#hoy-clases-vacio').textContent = 'El esfuerzo de hoy es el éxito del mañana.';
+    $('#hoy-clases-vacio').classList.add('motivacion');
+  } else {
+    const dia = datos.horario[diaDeHoy()];
+    const clases = [...dia.clases].sort((a, b) => a.hora.localeCompare(b.hora));
+    const tarde = [...dia.tarde].sort((a, b) => a.hora.localeCompare(b.hora));
 
-  $('#hoy-clases').innerHTML = clases.map(f => `
-    <li class="fila-horario"><span class="hora">${esc(f.hora)}</span><span class="texto">${esc(f.texto)}</span></li>`).join('');
-  $('#hoy-tarde').innerHTML = tarde.map(f => `
-    <li class="fila-horario"><span class="hora">${esc(f.hora)}</span><span class="texto">${esc(f.texto)}</span></li>`).join('');
+    $('#hoy-clases').innerHTML = clases.map(f => `
+      <li class="fila-horario"><span class="hora">${esc(f.hora)}</span><span class="texto">${esc(f.texto)}</span></li>`).join('');
+    $('#hoy-tarde').innerHTML = tarde.map(f => `
+      <li class="fila-horario"><span class="hora">${esc(f.hora)}</span><span class="texto">${esc(f.texto)}</span></li>`).join('');
+    $('#hoy-tarde-titulo').hidden = false;
 
-  const vacioC = clases.length === 0 && tarde.length === 0;
-  $('#hoy-clases-vacio').textContent = vacioC
-    ? 'Hoy no tienes nada apuntado. Ponlo en Horario'
-    : (clases.length === 0 ? 'Sin clases apuntadas' : '');
+    const vacioC = clases.length === 0 && tarde.length === 0;
+    $('#hoy-clases-vacio').textContent = vacioC
+      ? 'Hoy no tienes nada apuntado. Ponlo en Horario'
+      : (clases.length === 0 ? 'Sin clases apuntadas' : '');
+    $('#hoy-clases-vacio').classList.remove('motivacion');
+  }
 
   // Próximo examen y próxima entrega
   dibujarProxima('#hoy-examen', datos.examenes);
@@ -318,7 +329,7 @@ function dibujarHoy() {
       ${etiquetaCuando(d)}
     </li>`).join('');
   $('#hoy-deberes-vacio').textContent = cercanas.length === 0
-    ? 'Nada urgente. Échale un ojo a Deberes por si acaso.' : '';
+    ? 'Nada pendiente. Cuando sepas algo que hacer, apúntalo aquí.' : '';
 
   // Mini resumen de notas
   const conNotas = datos.asignaturas
@@ -359,8 +370,13 @@ let diaActivo = diaDeHoy();
 function dibujarDias() {
   $('#dias').innerHTML = DIAS.map((d, i) =>
     `<button data-dia="${d}" class="${d === diaActivo ? 'activa' : ''}">${DIAS_CORTO[i]}</button>`).join('');
-  dibujarListaHorario('clases');
-  dibujarListaHorario('tarde');
+  const finde = esFinde(diaActivo);
+  $('#horario-laboral').hidden = finde;
+  $('#horario-finde').hidden = !finde;
+  if (!finde) {
+    dibujarListaHorario('clases');
+    dibujarListaHorario('tarde');
+  }
 }
 
 function dibujarListaHorario(tipo) {

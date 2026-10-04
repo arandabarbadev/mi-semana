@@ -555,6 +555,22 @@ input::placeholder { color: #6b7385; }
 .cuenta-nombre { font-weight: 800; margin: 0 0 2px; }
 .nota-cuenta { color: var(--suave); font-size: .8rem; margin: 14px 0 0; }
 
+/* Mensaje de motivación del fin de semana */
+.finde-mensaje { text-align: center; padding: 34px 20px; }
+.finde-mensaje .frase {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--acento);
+  margin: 10px 0 6px;
+}
+.finde-mensaje .suave { color: var(--suave); font-size: .9rem; margin: 0; }
+
+.vacio.motivacion {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--acento);
+}
+
 /* Grupo "Cosas que hacer" dentro de la lista de pendientes */
 .grupo-titulo {
   list-style: none;
