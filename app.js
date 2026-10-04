@@ -601,11 +601,15 @@ $('#btn-quitar-completadas').addEventListener('click', () => {
   dibujarDeberes();
 });
 
-// Las tareas con fecha pasada se van solas (las de "cosas que hacer" se quedan)
+// Los pendientes con fecha pasada se quitan solo con permiso;
+// los completados y las cosas sin fecha se quedan siempre (Constitución VI)
 function quitarPasadas() {
-  const antes = datos.deberes.length;
-  datos.deberes = datos.deberes.filter(d => !d.fecha || diasQueFaltan(d.fecha) >= 0);
-  if (datos.deberes.length !== antes) { guardar(); dibujarDeberes(); dibujarHoy(); }
+  const vencidas = datos.deberes.filter(d => !d.hecha && d.fecha && diasQueFaltan(d.fecha) < 0);
+  if (vencidas.length === 0) return;
+  const una = vencidas.length === 1;
+  if (!confirm(`Tienes ${una ? '1 deber vencido' : vencidas.length + ' deberes vencidos'} (fecha pasada). ¿${una ? 'Lo' : 'Los'} quito?`)) return;
+  datos.deberes = datos.deberes.filter(d => d.hecha || !d.fecha || diasQueFaltan(d.fecha) >= 0);
+  guardar(); dibujarDeberes(); dibujarHoy();
 }
 
 // ---------- EXÁMENES Y ENTREGAS ----------
