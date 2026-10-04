@@ -55,7 +55,7 @@ App monolito en la raíz del repo: `index.html`, `app.js`, `styles.css` (sin `sr
 - [x] T005 [US1] Verificar en app.js `dibujarDias()` (líneas ~370–380): sábado y domingo muestran el mensaje de descanso y ocultan la edición de horario (FR-006)
 - [x] T006 [US1] **NUEVO** Añadir en index.html, dentro de las tarjetas "Clases" y "Por la tarde" de la sección Horario (~líneas 84–102), un aviso de lista vacía por tarjeta (`<p class="vacio" …>`) inicialmente oculto (FR-008)
 - [x] T007 [US1] **NUEVO** En app.js `dibujarListaHorario()`: cuando el día activo no tiene filas, mostrar el aviso de index.html con texto que diga qué hacer (p. ej. "Nada apuntado. Añade la primera aquí abajo."); cuando hay filas, ocultarlo. Reutilizar la clase `.vacio` de styles.css:167, sin CSS nuevo (FR-008, decisión D2 de research.md)
-- [ ] T008 [US1] Comprobar a mano los puntos 8 y 9 de quickstart.md: día laborable vacío muestra la indicación, y al borrar la última entrada vuelve a mostrarse
+- [x] T008 [US1] Comprobar a mano los puntos 8 y 9 de quickstart.md: día laborable vacío muestra la indicación, y al borrar la última entrada vuelve a mostrarse
 
 **Punto de control**: US1 completa — consultar, finde y días vacíos
 
@@ -109,8 +109,10 @@ App monolito en la raíz del repo: `index.html`, `app.js`, `styles.css` (sin `sr
 
 **Propósito**: validación completa y regresión tras el único cambio de código
 
-- [ ] T014 Ejecutar la validación completa de specs/001-horario-semanal/quickstart.md (13 puntos "hecho cuando") con la app en la mano; cualquier fallo se anota y lo recogerá /speckit-converge
-- [ ] T015 Pase de regresión tras FR-008: abrir Hoy, Cosas que hacer, Exámenes y Notas y comprobar que siguen pintando con normalidad
+*Verificadas 2026-10-04 con la app real en Chrome headless (clics reales). Puntos 10 y 13 del quickstart quedan verificados en código: hoy es domingo y no se pueden comprobar en vivo hasta un día laborable.*
+
+- [x] T014 Ejecutar la validación completa de specs/001-horario-semanal/quickstart.md (13 puntos "hecho cuando") con la app en la mano; cualquier fallo se anota y lo recogerá /speckit-converge
+- [x] T015 Pase de regresión tras FR-008: abrir Hoy, Cosas que hacer, Exámenes y Notas y comprobar que siguen pintando con normalidad
 
 ---
 

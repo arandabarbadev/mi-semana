@@ -423,7 +423,8 @@ for (const sel of ['#lista-clases', '#lista-tarde']) {
   ul.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-accion]');
     if (!btn) return;
-    const tipo = btn.dataset.tipo;
+    // El tipo sale de la lista, no del botón: el cancelar no lleva data-tipo
+    const tipo = sel.includes('clases') ? 'clases' : 'tarde';
     const li = btn.closest('li');
     const fila = datos.horario[diaActivo][tipo].find(x => x.id === li.dataset.id);
     if (!fila) return;
