@@ -33,6 +33,11 @@ Cada spec incluye criterios de "hecho cuando" que se verifican con la app en la 
 
 Motivo: el agente estaba trabajando sin que los archivos estuvieran en mi carpeta, y así no puedo revisar lo que se genera, que es la mitad de mi trabajo.
 
+### IX. Evidencias, no promesas
+Cuando se verifica que algo funciona, se enseña la evidencia: una captura de la app real, la salida del comando que se ejecutó, o el estado comprobado que se leyó. Un "funciona" sin evidencia no cuenta como verificado. Si no se puede mostrar evidencia, se dice qué falta y cómo se comprobará.
+
+Motivo: revisar lo que hace el agente es la mitad de mi trabajo, y sin evidencia solo me queda creerle.
+
 ## Lecciones aprendidas
 <!-- Reglas técnicas obligatorias para el plan y la implementación. -->
 
@@ -47,4 +52,4 @@ Si la app tiene service worker, el HTML se pide a la red primero y la caché sol
 - Esta constitución tiene prioridad sobre cualquier plan o tarea. Si el plan la incumple, se dice en el Constitution Check y se justifica o se corrige.
 - Cada vez que un error me cueste tiempo, se añade aquí como lección nueva y se sube la versión.
 
-**Versión**: 1.1.0 | **Ratificada**: 2026-10-04 | **Última enmienda**: 2026-10-04
+**Versión**: 1.2.0 | **Ratificada**: 2026-10-04 | **Última enmienda**: 2026-10-04
