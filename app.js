@@ -3,6 +3,13 @@
 import { enCambiarSesion, entrar, salir, escucharSemana, subirSemana, leerOtrasApps }
   from './firebase.js';
 
+// ---------- Iconos (SVG, sin emojis) ----------
+
+const SVG_EDITAR = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zM20.7 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+const SVG_BORRAR = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg>';
+const BTN_EDITAR = `<button class="btn-mini" data-accion="editar" title="Editar" aria-label="Editar">${SVG_EDITAR}</button>`;
+const BTN_BORRAR = `<button class="btn-mini peligro" data-accion="borrar" title="Borrar" aria-label="Borrar">${SVG_BORRAR}</button>`;
+
 // ---------- Estado ----------
 
 const CLAVE = 'mi-semana-v1';
@@ -14,7 +21,6 @@ function estadoVacio() {
   for (const d of DIAS) horario[d] = { clases: [], tarde: [] };
   return {
     horario,
-    tareasFinde: [],
     deberes: [],
     examenes: [],
     entregas: [],
@@ -80,6 +86,21 @@ function cargar() {
     const crudo = localStorage.getItem(CLAVE);
     if (crudo) datos = { ...estadoVacio(), ...JSON.parse(crudo) };
   } catch { /* si está corrupto, empezamos de cero */ }
+  // Migración: las tareas del finde de antes ahora son "cosas que hacer" en Deberes
+  if (Array.isArray(datos.tareasFinde) && datos.tareasFinde.length > 0) {
+    for (const t of datos.tareasFinde) {
+      datos.deberes.push({
+        id: t.id || idNuevo(),
+        asignatura: '',
+        fecha: '',
+        texto: t.texto,
+        hecha: !!t.hecha
+      });
+    }
+    datos.tareasFinde = [];
+    datos.modificado = Date.now();
+    localStorage.setItem(CLAVE, JSON.stringify(datos));
+  }
 }
 
 function guardar() {
@@ -104,9 +125,9 @@ async function subirNube() {
   try {
     await subirSemana(uid, datos);
     ultimaSubida = datos.modificado;
-    estado('✅ guardado en la nube');
+    estado('Guardado en la nube');
   } catch (e) {
-    estado('⚠️ no se pudo subir: ' + (e.code || 'error'));
+    estado('Aviso: no se pudo subir (' + (e.code || 'error') + ')');
   }
 }
 
@@ -117,12 +138,12 @@ enCambiarSesion((user) => {
   usuarioActual = user;
   dibujarCuenta(user);
   if (user) {
-    estado('☁️ conectando…');
+    estado('Conectando…');
     // Si la nube no responde en 12 s, avisamos claro y dejamos el detalle en consola
     let nubeRespondio = false;
     const despedida = setTimeout(() => {
       if (!nubeRespondio) {
-        estado('⚠️ la nube no responde: pulsa F12 → Consola y cuéntame lo rojo');
+        estado('Aviso: la nube no responde. Pulsa F12, pestaña Consola, y cuéntame lo que sale en rojo');
         console.warn('mi-semana: Firestore no respondió en 12 s. Último error:', window.__msError || 'ninguno');
       }
     }, 12000);
@@ -131,27 +152,27 @@ enCambiarSesion((user) => {
       marcarRespuesta();
       if (remoto === null) {
         // Nube vacía y hay datos aquí: los subimos ("mudanza")
-        if (datos.modificado > 0) { estado('☁️ subiendo tus datos…'); subirNube(); }
-        else estado('☁️ sincronizada (nube vacía)');
+        if (datos.modificado > 0) { estado('Subiendo tus datos…'); subirNube(); }
+        else estado('Sincronizada (nube vacía)');
       } else if ((remoto.modificado || 0) > datos.modificado) {
         // La nube está más nueva: bajamos
         datos = { ...estadoVacio(), ...remoto };
         ultimaSubida = datos.modificado;
         localStorage.setItem(CLAVE, JSON.stringify(datos));
         dibujarTodo();
-        estado('⬇️ descargada de la nube');
+        estado('Descargada de la nube');
       } else {
         ultimaSubida = remoto.modificado || 0;
-        if (datos.modificado > ultimaSubida) { estado('☁️ subiendo…'); subirNube(); }
-        else estado('☁️ sincronizada');
+        if (datos.modificado > ultimaSubida) { estado('Subiendo…'); subirNube(); }
+        else estado('Sincronizada');
       }
     }, (s) => {
       marcarRespuesta();
-      if (s === 'conectado') { if (!uid) estado('⚠️ sesión perdida'); }
-      else { window.__msError = s; estado('⚠️ ' + s); }
+      if (s === 'conectado') { if (!uid) estado('Aviso: sesión perdida'); }
+      else { window.__msError = s; estado('Aviso: ' + s); }
     });
   } else {
-    estado('modo local: solo se guarda en este navegador');
+    estado('Sin sesión: solo se guarda en este navegador');
   }
 });
 
@@ -168,7 +189,7 @@ function dibujarCuenta(user) {
     $('#btn-logout').hidden = false;
     $('#btn-importar').hidden = false;
   } else {
-    btn.textContent = '👤';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2.2c-3.3 0-9 1.7-9 5V21h18v-1.8c0-3.3-5.7-5-9-5z"/></svg>';
     $('#cuenta-perfil').hidden = true;
     $('#btn-login').hidden = false;
     $('#btn-logout').hidden = true;
@@ -183,19 +204,19 @@ $('#panel-cuenta').addEventListener('click', (e) => {
 });
 
 $('#btn-login').addEventListener('click', async () => {
-  try { await entrar(); } catch (e) { estado('⚠️ no se pudo entrar: ' + (e.code || 'error')); }
+  try { await entrar(); } catch (e) { estado('Aviso: no se pudo entrar (' + (e.code || 'error') + ')'); }
 });
 
 $('#btn-logout').addEventListener('click', async () => {
   await salir();
   $('#panel-cuenta').hidden = true;
-  estado('modo local: solo se guarda en este navegador');
+  estado('Sin sesión: solo se guarda en este navegador');
 });
 
 $('#btn-importar').addEventListener('click', async () => {
   if (!uid) return;
   if (!confirm('¿Traer los deberes, exámenes, entregas, asignaturas y notas de tus otras apps? Lo que ya esté aquí no se toca.')) return;
-  estado('⬇️ trayendo datos…');
+  estado('Trayendo datos…');
   try {
     const t = await leerOtrasApps(uid);
 
@@ -224,7 +245,7 @@ $('#btn-importar').addEventListener('click', async () => {
     }
 
     // Deberes pasadas no interesan
-    datos.deberes = datos.deberes.filter(d => diasQueFaltan(d.fecha) >= 0);
+    datos.deberes = datos.deberes.filter(d => !d.fecha || diasQueFaltan(d.fecha) >= 0);
 
     guardar();
     dibujarTodo();
@@ -233,7 +254,7 @@ $('#btn-importar').addEventListener('click', async () => {
       t.entregas.length + ' entregas', t.asignaturas.length + ' asignaturas', t.notas.length + ' notas'];
     alert('Traído de tus otras apps:\n· ' + cuenta.join('\n· ') + '\n\n(lo que ya estaba no se duplica)');
   } catch (e) {
-    estado('⚠️ fallo al importar: ' + (e.code || 'error'));
+    estado('Aviso: fallo al importar (' + (e.code || 'error') + ')');
   }
 });
 
@@ -255,10 +276,10 @@ $('#pestanas').addEventListener('click', (e) => {
 
 function saludo() {
   const h = new Date().getHours();
-  if (esFinde(diaDeHoy())) return '🎉 ¡Es finde!';
-  if (h < 13) return '☀️ Buenos días';
-  if (h < 20) return '👋 Buenas tardes';
-  return '🌙 Buenas noches';
+  if (esFinde(diaDeHoy())) return 'Es finde';
+  if (h < 13) return 'Buenos días';
+  if (h < 20) return 'Buenas tardes';
+  return 'Buenas noches';
 }
 
 function dibujarHoy() {
@@ -273,48 +294,38 @@ function dibujarHoy() {
   $('#hoy-tarde').innerHTML = tarde.map(f => `
     <li class="fila-horario"><span class="hora">${esc(f.hora)}</span><span class="texto">${esc(f.texto)}</span></li>`).join('');
 
-  if (esFinde(diaDeHoy())) {
-    $('#hoy-tarde-titulo').hidden = true;
-    $('#hoy-clases-vacio').textContent = datos.tareasFinde.some(t => !t.hecha)
-      ? ''
-      : 'Sin tareas pendientes para el finde. Disfruta 🕹️';
-    const pend = datos.tareasFinde.filter(t => !t.hecha);
-    $('#hoy-clases').innerHTML = pend.map(t => `
-      <li class="fila-horario"><span class="texto">☐ ${esc(t.texto)}</span></li>`).join('');
-    $('#hoy-tarde').innerHTML = '';
-  } else {
-    $('#hoy-tarde-titulo').hidden = false;
-    const vacioC = clases.length === 0 && tarde.length === 0;
-    $('#hoy-clases-vacio').textContent = vacioC
-      ? 'Hoy no tienes nada apuntado. Ponlo en Horario 📅'
-      : (clases.length === 0 ? 'Sin clases apuntadas' : '');
-  }
+  const vacioC = clases.length === 0 && tarde.length === 0;
+  $('#hoy-clases-vacio').textContent = vacioC
+    ? 'Hoy no tienes nada apuntado. Ponlo en Horario'
+    : (clases.length === 0 ? 'Sin clases apuntadas' : '');
 
   // Próximo examen y próxima entrega
   dibujarProxima('#hoy-examen', datos.examenes);
   dibujarProxima('#hoy-entrega', datos.entregas);
 
-  // Deberes que se echan encima (hoy o en 2 días)
-  const cercanas = datos.deberes
-    .filter(d => !d.hecha && diasQueFaltan(d.fecha) <= 2)
+  // Deberes que se echan encima (con fecha en 2 días) + cosas por hacer sin fecha
+  const conFecha = datos.deberes
+    .filter(d => !d.hecha && d.fecha && diasQueFaltan(d.fecha) <= 2)
     .sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const sinFecha = datos.deberes.filter(d => !d.hecha && !d.fecha);
+  const cercanas = [...conFecha, ...sinFecha];
   $('#hoy-deberes').innerHTML = cercanas.map(d => `
     <li class="fila-deber">
       <span class="texto-deber">
-        <span class="asignatura">${esc(d.asignatura)}</span>
+        ${d.asignatura ? `<span class="asignatura">${esc(d.asignatura)}</span>` : ''}
         <div class="detalle">${esc(d.texto)}</div>
       </span>
-      ${etiquetaCuando(d.fecha)}
+      ${etiquetaCuando(d)}
     </li>`).join('');
   $('#hoy-deberes-vacio').textContent = cercanas.length === 0
-    ? 'Nada urgente. Échale un ojo a Deberes 📝 por si acaso.' : '';
+    ? 'Nada urgente. Échale un ojo a Deberes por si acaso.' : '';
 
   // Mini resumen de notas
   const conNotas = datos.asignaturas
     .map(a => ({ a, media: mediaExacta(a.id) }))
     .filter(x => x !== null && x.media !== null);
   if (conNotas.length === 0) {
-    $('#hoy-notas').innerHTML = '<p class="vacio">Sin asignaturas aún. Añádelas en Notas 🧮</p>';
+    $('#hoy-notas').innerHTML = '<p class="vacio">Sin asignaturas aún. Añádelas en Notas</p>';
   } else {
     const global = conNotas.map(x => x.media).reduce((s, n) => s + n, 0) / conNotas.length;
     $('#hoy-notas').innerHTML =
@@ -331,7 +342,7 @@ function dibujarProxima(sel, lista) {
     .sort((a, b) => a.fecha.localeCompare(b.fecha));
   const cont = $(sel);
   if (pendientes.length === 0) {
-    cont.innerHTML = '<p class="sin-proxima" style="margin:0;color:var(--suave)">Nada pendiente 🎉</p>';
+    cont.innerHTML = '<p class="sin-proxima" style="margin:0;color:var(--suave)">Nada pendiente</p>';
     return;
   }
   const p = pendientes[0];
@@ -348,11 +359,8 @@ let diaActivo = diaDeHoy();
 function dibujarDias() {
   $('#dias').innerHTML = DIAS.map((d, i) =>
     `<button data-dia="${d}" class="${d === diaActivo ? 'activa' : ''}">${DIAS_CORTO[i]}</button>`).join('');
-  const finde = esFinde(diaActivo);
-  $('#horario-laboral').hidden = finde;
-  $('#horario-finde').hidden = !finde;
-  if (finde) dibujarTareasFinde();
-  else { dibujarListaHorario('clases'); dibujarListaHorario('tarde'); }
+  dibujarListaHorario('clases');
+  dibujarListaHorario('tarde');
 }
 
 function dibujarListaHorario(tipo) {
@@ -362,10 +370,7 @@ function dibujarListaHorario(tipo) {
     <li class="fila-horario" data-id="${esc(f.id)}">
       <span class="hora">${esc(f.hora)}</span>
       <span class="texto">${esc(f.texto)}</span>
-      <span class="acciones">
-        <button class="btn-mini" data-accion="editar" data-tipo="${tipo}" title="Editar">✎</button>
-        <button class="btn-mini peligro" data-accion="borrar" data-tipo="${tipo}" title="Borrar">✕</button>
-      </span>
+      <span class="acciones">${BTN_EDITAR.replace('data-accion="editar"', `data-accion="editar" data-tipo="${tipo}"`)}${BTN_BORRAR.replace('data-accion="borrar"', `data-accion="borrar" data-tipo="${tipo}"`)}</span>
     </li>`).join('');
 }
 
@@ -414,8 +419,8 @@ for (const sel of ['#lista-clases', '#lista-tarde']) {
         <form class="fila-edit" data-id="${esc(fila.id)}">
           <input type="time" value="${esc(fila.hora)}" required>
           <input type="text" maxlength="40" value="${esc(fila.texto)}" required>
-          <button type="submit" class="btn-primario">✓</button>
-          <button type="button" class="btn-mini" data-accion="cancelar">✕</button>
+          <button type="submit" class="btn-primario">OK</button>
+          <button type="button" class="btn-mini" data-accion="cancelar" aria-label="Cancelar">${SVG_BORRAR}</button>
         </form>`;
     }
   });
@@ -435,103 +440,56 @@ for (const sel of ['#lista-clases', '#lista-tarde']) {
   });
 }
 
-// Tareas del finde
-function dibujarTareasFinde() {
-  const pend = datos.tareasFinde.filter(t => !t.hecha).length;
-  $('#cont-tareas-finde').textContent = pend > 0 ? pend : '';
-  $('#lista-tareas-finde').innerHTML = datos.tareasFinde.map(t => `
-    <li class="fila-tarea ${t.hecha ? 'hecha' : ''}" data-id="${esc(t.id)}">
-      <input type="checkbox" ${t.hecha ? 'checked' : ''} aria-label="Marcar como hecha">
-      <span class="texto-deber texto">${esc(t.texto)}</span>
-      <span class="acciones">
-        <button class="btn-mini peligro" data-accion="borrar" title="Borrar">✕</button>
-      </span>
-    </li>`).join('');
+// ---------- DEBERES Y COSAS QUE HACER ----------
+
+function etiquetaCuando(d) {
+  if (!d.fecha) return '<span class="cuando lejos">por hacer</span>';
+  const dias = diasQueFaltan(d.fecha);
+  if (dias <= 0) return '<span class="cuando hoy">hoy</span>';
+  if (dias === 1) return '<span class="cuando manana">mañana</span>';
+  if (dias <= 3) return `<span class="cuando pronto">en ${dias} días</span>`;
+  return `<span class="cuando lejos">en ${dias} días</span>`;
 }
 
-$('#form-tareas-finde').addEventListener('submit', (e) => {
-  e.preventDefault();
-  datos.tareasFinde.push({ id: idNuevo(), texto: $('#tareas-finde-texto').value.trim(), hecha: false });
-  guardar();
-  $('#form-tareas-finde').reset();
-  dibujarTareasFinde();
-});
-
-$('#lista-tareas-finde').addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-accion="borrar"]');
-  if (!btn) return;
-  const id = btn.closest('li').dataset.id;
-  const t = datos.tareasFinde.find(x => x.id === id);
-  if (t && confirm('¿Borrar "' + t.texto + '"?')) {
-    datos.tareasFinde = datos.tareasFinde.filter(x => x.id !== id);
-    guardar();
-    dibujarTareasFinde();
-  }
-});
-
-$('#lista-tareas-finde').addEventListener('change', (e) => {
-  if (!e.target.matches('input[type="checkbox"]')) return;
-  const t = datos.tareasFinde.find(x => x.id === e.target.closest('li').dataset.id);
-  if (t) { t.hecha = e.target.checked; guardar(); dibujarTareasFinde(); dibujarHoy(); }
-});
-
-$('#btn-quitar-hechas').addEventListener('click', () => {
-  if (!datos.tareasFinde.some(t => t.hecha)) return;
-  datos.tareasFinde = datos.tareasFinde.filter(t => !t.hecha);
-  guardar();
-  dibujarTareasFinde();
-});
-
-// ---------- DEBERES ----------
-
-function etiquetaCuando(fecha) {
-  const d = diasQueFaltan(fecha);
-  if (d <= 0) return '<span class="cuando hoy">hoy</span>';
-  if (d === 1) return '<span class="cuando manana">mañana</span>';
-  if (d <= 3) return `<span class="cuando pronto">en ${d} días</span>`;
-  return `<span class="cuando lejos">en ${d} días</span>`;
+function filaDeber(d) {
+  return `
+    <li class="fila-deber ${d.hecha ? 'hecha' : ''}" data-id="${esc(d.id)}">
+      <input type="checkbox" ${d.hecha ? 'checked' : ''} data-accion="${d.hecha ? 'deshacer' : 'completar'}" aria-label="Marcar como hecha">
+      <span class="texto-deber">
+        ${d.asignatura ? `<span class="asignatura">${esc(d.asignatura)}</span>` : ''}
+        <div class="detalle">${esc(d.texto)}</div>
+      </span>
+      ${etiquetaCuando(d)}
+      <span class="acciones">${d.hecha ? '' : BTN_EDITAR}${BTN_BORRAR}</span>
+    </li>`;
 }
 
 function dibujarDeberes() {
-  const pend = datos.deberes.filter(d => !d.hecha).sort((a, b) => a.fecha.localeCompare(b.fecha));
-  const comp = datos.deberes.filter(d => d.hecha).sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const pendientes = datos.deberes
+    .filter(d => !d.hecha)
+    .sort((a, b) => (a.fecha || '9999').localeCompare(b.fecha || '9999'));
+  const comp = datos.deberes
+    .filter(d => d.hecha)
+    .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
 
-  $('#cont-deberes').textContent = pend.length > 0 ? pend.length : '';
-  $('#cont-deberes-pend').textContent = pend.length;
+  $('#cont-deberes').textContent = pendientes.length > 0 ? pendientes.length : '';
+  $('#cont-deberes-pend').textContent = pendientes.length;
   $('#cont-deberes-comp').textContent = comp.length;
 
-  $('#lista-deberes-pend').innerHTML = pend.map(d => `
-    <li class="fila-deber" data-id="${esc(d.id)}">
-      <input type="checkbox" data-accion="completar" aria-label="Marcar como hecha">
-      <span class="texto-deber">
-        <span class="asignatura">${esc(d.asignatura)}</span>
-        <div class="detalle">${esc(d.texto)}</div>
-      </span>
-      ${etiquetaCuando(d.fecha)}
-      <span class="acciones">
-        <button class="btn-mini" data-accion="editar" title="Editar">✎</button>
-        <button class="btn-mini peligro" data-accion="borrar" title="Borrar">✕</button>
-      </span>
-    </li>`).join('');
-  $('#deberes-pend-vacio').textContent = pend.length === 0 ? 'El esfuerzo de hoy es el éxito del mañana 💪' : '';
+  // Pendientes: primero las que tienen fecha, luego "Cosas que hacer" (sin fecha)
+  const conFecha = pendientes.filter(d => d.fecha);
+  const sinFecha = pendientes.filter(d => !d.fecha);
+  $('#lista-deberes-pend').innerHTML =
+    conFecha.map(filaDeber).join('') +
+    (sinFecha.length > 0 ? `<li class="grupo-titulo">Cosas que hacer</li>` + sinFecha.map(filaDeber).join('') : '');
+  $('#deberes-pend-vacio').textContent = pendientes.length === 0 ? 'El esfuerzo de hoy es el éxito del mañana' : '';
 
-  $('#lista-deberes-comp').innerHTML = comp.map(d => `
-    <li class="fila-deber hecha" data-id="${esc(d.id)}">
-      <input type="checkbox" checked data-accion="deshacer" aria-label="Devolver a pendientes">
-      <span class="texto-deber">
-        <span class="asignatura">${esc(d.asignatura)}</span>
-        <div class="detalle">${esc(d.texto)}</div>
-      </span>
-      ${etiquetaCuando(d.fecha)}
-      <span class="acciones">
-        <button class="btn-mini peligro" data-accion="borrar" title="Borrar">✕</button>
-      </span>
-    </li>`).join('');
+  $('#lista-deberes-comp').innerHTML = comp.map(filaDeber).join('');
   $('#deberes-comp-vacio').textContent = comp.length === 0 ? 'Nada completado aún.' : '';
 
   // Sugerencias de asignatura (deberes + notas)
   const nombres = new Set([
-    ...datos.deberes.map(d => d.asignatura),
+    ...datos.deberes.map(d => d.asignatura).filter(Boolean),
     ...datos.asignaturas.map(a => a.nombre)
   ]);
   $('#sugerencias-asignaturas').innerHTML =
@@ -552,7 +510,7 @@ $('#form-deber').addEventListener('submit', (e) => {
   datos.deberes.push({
     id: idNuevo(),
     asignatura: $('#deber-asignatura').value.trim(),
-    fecha: $('#deber-fecha').value,
+    fecha: $('#deber-fecha').value || '',
     texto: $('#deber-texto').value.trim(),
     hecha: false
   });
@@ -589,11 +547,11 @@ for (const sel of ['#lista-deberes-pend', '#lista-deberes-comp']) {
     } else if (btn.dataset.accion === 'editar') {
       li.innerHTML = `
         <form class="fila-edit" style="width:100%" data-id="${esc(d.id)}">
-          <input type="text" maxlength="30" value="${esc(d.asignatura)}" required>
-          <input type="date" value="${esc(d.fecha)}" min="${hoyISO()}" required>
+          <input type="text" maxlength="30" value="${esc(d.asignatura)}" placeholder="Asignatura (opcional)">
+          <input type="date" value="${esc(d.fecha)}" min="${hoyISO()}">
           <input type="text" maxlength="140" value="${esc(d.texto)}" required style="flex-basis:100%">
-          <button type="submit" class="btn-primario">✓</button>
-          <button type="button" class="btn-mini" data-accion="cancelar">✕</button>
+          <button type="submit" class="btn-primario">OK</button>
+          <button type="button" class="btn-mini" data-accion="cancelar" aria-label="Cancelar">${SVG_BORRAR}</button>
         </form>`;
       li.querySelector('button[data-accion="cancelar"]')
         .addEventListener('click', () => dibujarDeberes());
@@ -607,7 +565,7 @@ for (const sel of ['#lista-deberes-pend', '#lista-deberes-comp']) {
     if (d) {
       const inputs = form.querySelectorAll('input');
       d.asignatura = inputs[0].value.trim();
-      d.fecha = inputs[1].value;
+      d.fecha = inputs[1].value || '';
       d.texto = inputs[2].value.trim();
       guardar();
     }
@@ -624,10 +582,10 @@ $('#btn-quitar-completadas').addEventListener('click', () => {
   dibujarDeberes();
 });
 
-// Las tareas con fecha pasada se van solas
+// Las tareas con fecha pasada se van solas (las de "cosas que hacer" se quedan)
 function quitarPasadas() {
   const antes = datos.deberes.length;
-  datos.deberes = datos.deberes.filter(d => diasQueFaltan(d.fecha) >= 0);
+  datos.deberes = datos.deberes.filter(d => !d.fecha || diasQueFaltan(d.fecha) >= 0);
   if (datos.deberes.length !== antes) { guardar(); dibujarDeberes(); dibujarHoy(); }
 }
 
@@ -647,9 +605,7 @@ function filaCuenta(x) {
       ${urgente && dias > 0 ? '<span class="punto-urgente"></span>' : ''}
       <span class="dias">${cuenta}</span>
       <span class="asignatura">${esc(x.asignatura)}</span>
-      <span class="acciones">
-        <button class="btn-mini peligro" data-accion="borrar" title="Borrar">✕</button>
-      </span>
+      <span class="acciones">${BTN_BORRAR}</span>
     </li>`;
 }
 
@@ -724,13 +680,13 @@ function estadoObjetivo(a) {
   if (!a.objetivo) {
     return n.length === 0
       ? '<p class="estado-objetivo">Sin notas aún</p>'
-      : '<p class="estado-objetivo">Ponle un objetivo para ver qué necesitas 🎯</p>';
+      : '<p class="estado-objetivo">Ponle un objetivo para ver qué necesitas</p>';
   }
   if (n.length === 0) return `<p class="estado-objetivo">Objetivo: ${formatearNota(a.objetivo)}. ¡A por él!</p>`;
   const exacta = mediaExacta(a.id);
   const red = mediaRedondeada(a.id);
-  if (exacta >= a.objetivo) return '<p class="estado-objetivo ok">✅ ¡Objetivo conseguido!</p>';
-  if (red >= a.objetivo) return `<p class="estado-objetivo casi">🎯 ¡Casi! Media: ${formatearNota(Math.round(exacta * 100) / 100)}</p>`;
+  if (exacta >= a.objetivo) return '<p class="estado-objetivo ok">¡Objetivo conseguido!</p>';
+  if (red >= a.objetivo) return `<p class="estado-objetivo casi">¡Casi! Media: ${formatearNota(Math.round(exacta * 100) / 100)}</p>`;
   const suma = n.reduce((s, x) => s + x.nota, 0);
   const necesaria = a.objetivo * (n.length + 1) - suma;
   if (necesaria > 10) {
@@ -744,7 +700,7 @@ function dibujarNotas() {
 
   // Pestaña Calculadora
   $('#lista-asignaturas').innerHTML = asignaturas.length === 0
-    ? '<p class="vacio">Añade tu primera asignatura para empezar a llevar las notas 🧮</p>'
+    ? '<p class="vacio">Añade tu primera asignatura para empezar a llevar las notas</p>'
     : asignaturas.map(a => {
         const m = mediaExacta(a.id);
         const r = mediaRedondeada(a.id);
@@ -755,12 +711,9 @@ function dibujarNotas() {
             <span class="nota-media ${clase}">${r === null ? '—' : formatearNota(r)}</span>
             <span class="asignatura-info">
               <span class="asignatura-nombre">${esc(a.nombre)}</span><br>
-              ${a.objetivo ? `<span class="chip-objetivo">🎯 objetivo ${formatearNota(a.objetivo)}</span>` : ''}
+              ${a.objetivo ? `<span class="chip-objetivo">objetivo ${formatearNota(a.objetivo)}</span>` : ''}
             </span>
-            <span class="acciones">
-              <button class="btn-mini" data-accion="editar-asignatura" title="Editar">✎</button>
-              <button class="btn-mini peligro" data-accion="borrar-asignatura" title="Borrar">✕</button>
-            </span>
+            <span class="acciones">${BTN_EDITAR.replace('data-accion="editar"', 'data-accion="editar-asignatura"')}${BTN_BORRAR.replace('data-accion="borrar"', 'data-accion="borrar-asignatura"')}</span>
           </div>
           ${estadoObjetivo(a)}
         </div>`;
@@ -776,7 +729,7 @@ function dibujarNotas() {
       return `
         <section class="tarjeta grupo-notas" data-id="${esc(a.id)}" style="margin-bottom:14px">
           <h3>${esc(a.nombre)}
-            <button data-accion="nueva-nota" data-id="${esc(a.id)}">＋ nota</button>
+            <button data-accion="nueva-nota" data-id="${esc(a.id)}">+ nota</button>
           </h3>
           ${n.length === 0
             ? '<p class="vacio" style="padding:4px 0">Sin notas todavía</p>'
@@ -784,7 +737,7 @@ function dibujarNotas() {
               <li class="fila-nota" data-id="${esc(x.id)}">
                 <span class="examen">${esc(x.examen)}</span>
                 <span class="valor">${formatearNota(x.nota)}</span>
-                <button class="btn-mini peligro" data-accion="borrar-nota" title="Borrar">✕</button>
+                ${BTN_BORRAR.replace('data-accion="borrar"', 'data-accion="borrar-nota"')}
               </li>`).join('') + '</ul>'}
           ${exacta !== null ? `<p class="pie-medias" style="margin-top:10px">media ${formatearNota(Math.round(exacta * 100) / 100)} → <b>${formatearNota(mediaRedondeada(a.id))}</b></p>` : ''}
         </section>`;

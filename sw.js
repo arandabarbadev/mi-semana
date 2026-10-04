@@ -1,6 +1,6 @@
 // Service worker de Mi semana: guarda la app para que abra sin conexión.
 
-const CACHE = 'mi-semana-v1';
+const CACHE = 'mi-semana-v2';
 
 const PRECARGA = [
   './',
