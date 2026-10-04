@@ -28,7 +28,7 @@ App monolito en la raíz del repo: `index.html`, `app.js`, `styles.css` (sin `sr
 
 **Propósito**: la app funcionando en local antes de tocar nada
 
-- [ ] T001 Arrancar la app en local siguiendo la "Preparación" de specs/001-horario-semanal/quickstart.md (`py -m http.server 8000` o Live Server) y comprobar que abre sin errores en consola (F12)
+- [x] T001 Arrancar la app en local siguiendo la "Preparación" de specs/001-horario-semanal/quickstart.md (`py -m http.server 8000` o Live Server) y comprobar que abre sin errores en consola (F12)
 
 ---
 
@@ -36,8 +36,8 @@ App monolito en la raíz del repo: `index.html`, `app.js`, `styles.css` (sin `sr
 
 **Propósito**: confirmar el modelo de datos y la persistencia sobre los que se apoya todo
 
-- [ ] T002 Verificar en app.js el modelo del horario (FR-010): `estadoVacio()` crea los 7 días con `clases: []` y `tarde: []`; la entrada solo tiene día + grupo + hora + texto, sin fechas; clave de guardado `mi-semana-v1` (specs/001-horario-semanal/data-model.md)
-- [ ] T003 Verificar en app.js la persistencia al momento (FR-005): `guardar()` se llama tras cada añadir/editar/borrar y escribe en `localStorage` sin acción extra del usuario
+- [x] T002 Verificar en app.js el modelo del horario (FR-010): `estadoVacio()` crea los 7 días con `clases: []` y `tarde: []`; la entrada solo tiene día + grupo + hora + texto, sin fechas; clave de guardado `mi-semana-v1` (specs/001-horario-semanal/data-model.md)
+- [x] T003 Verificar en app.js la persistencia al momento (FR-005): `guardar()` se llama tras cada añadir/editar/borrar y escribe en `localStorage` sin acción extra del usuario
 
 **Punto de control**: base confirmada; las historias pueden verificarse en cualquier orden
 
@@ -51,10 +51,10 @@ App monolito en la raíz del repo: `index.html`, `app.js`, `styles.css` (sin `sr
 
 ### Implementación
 
-- [ ] T004 [US1] Verificar en app.js `dibujarListaHorario()` (líneas ~382–391): pinta clases y tarde del día activo, ordenadas por hora y en grupos separados (FR-002)
-- [ ] T005 [US1] Verificar en app.js `dibujarDias()` (líneas ~370–380): sábado y domingo muestran el mensaje de descanso y ocultan la edición de horario (FR-006)
-- [ ] T006 [US1] **NUEVO** Añadir en index.html, dentro de las tarjetas "Clases" y "Por la tarde" de la sección Horario (~líneas 84–102), un aviso de lista vacía por tarjeta (`<p class="vacio" …>`) inicialmente oculto (FR-008)
-- [ ] T007 [US1] **NUEVO** En app.js `dibujarListaHorario()`: cuando el día activo no tiene filas, mostrar el aviso de index.html con texto que diga qué hacer (p. ej. "Nada apuntado. Añade la primera aquí abajo."); cuando hay filas, ocultarlo. Reutilizar la clase `.vacio` de styles.css:167, sin CSS nuevo (FR-008, decisión D2 de research.md)
+- [x] T004 [US1] Verificar en app.js `dibujarListaHorario()` (líneas ~382–391): pinta clases y tarde del día activo, ordenadas por hora y en grupos separados (FR-002)
+- [x] T005 [US1] Verificar en app.js `dibujarDias()` (líneas ~370–380): sábado y domingo muestran el mensaje de descanso y ocultan la edición de horario (FR-006)
+- [x] T006 [US1] **NUEVO** Añadir en index.html, dentro de las tarjetas "Clases" y "Por la tarde" de la sección Horario (~líneas 84–102), un aviso de lista vacía por tarjeta (`<p class="vacio" …>`) inicialmente oculto (FR-008)
+- [x] T007 [US1] **NUEVO** En app.js `dibujarListaHorario()`: cuando el día activo no tiene filas, mostrar el aviso de index.html con texto que diga qué hacer (p. ej. "Nada apuntado. Añade la primera aquí abajo."); cuando hay filas, ocultarlo. Reutilizar la clase `.vacio` de styles.css:167, sin CSS nuevo (FR-008, decisión D2 de research.md)
 - [ ] T008 [US1] Comprobar a mano los puntos 8 y 9 de quickstart.md: día laborable vacío muestra la indicación, y al borrar la última entrada vuelve a mostrarse
 
 **Punto de control**: US1 completa — consultar, finde y días vacíos
@@ -69,7 +69,7 @@ App monolito en la raíz del repo: `index.html`, `app.js`, `styles.css` (sin `sr
 
 ### Implementación
 
-- [ ] T009 [US2] Verificar en app.js los formularios `#form-clases` y `#form-tarde` → `añadirAHorario()` (líneas ~400–416): piden hora y descripción obligatorias, la descripción admite máx. 40 caracteres (data-model.md: "descripción de una línea, máx. 40 caracteres"), la entrada aparece al momento en su grupo (FR-001) y dos entradas a la misma hora se mantienen ambas
+- [x] T009 [US2] Verificar en app.js los formularios `#form-clases` y `#form-tarde` → `añadirAHorario()` (líneas ~400–416): piden hora y descripción obligatorias, la descripción admite máx. 40 caracteres (data-model.md: "descripción de una línea, máx. 40 caracteres"), la entrada aparece al momento en su grupo (FR-001) y dos entradas a la misma hora se mantienen ambas
 
 **Punto de control**: US2 completa — apuntar funciona sin recargar
 
@@ -83,8 +83,8 @@ App monolito en la raíz del repo: `index.html`, `app.js`, `styles.css` (sin `sr
 
 ### Implementación
 
-- [ ] T010 [US3] Verificar en app.js la delegación de edición en `#lista-clases`/`#lista-tarde` (líneas ~418–457): editar cambia hora/texto al momento y se reordena; cancelar restaura la entrada sin cambios (FR-003)
-- [ ] T011 [US3] Verificar en app.js el borrado (líneas ~429–432): `confirm()` nombra la entrada antes de borrar; cancelar no toca nada (FR-004, Constitución VI)
+- [x] T010 [US3] Verificar en app.js la delegación de edición en `#lista-clases`/`#lista-tarde` (líneas ~418–457): editar cambia hora/texto al momento y se reordena; cancelar restaura la entrada sin cambios (FR-003)
+- [x] T011 [US3] Verificar en app.js el borrado (líneas ~429–432): `confirm()` nombra la entrada antes de borrar; cancelar no toca nada (FR-004, Constitución VI)
 
 **Punto de control**: US3 completa — corregir y borrar seguros
 
@@ -98,8 +98,8 @@ App monolito en la raíz del repo: `index.html`, `app.js`, `styles.css` (sin `sr
 
 ### Implementación
 
-- [ ] T012 [US4] Verificar en app.js `dibujarHoy()` (líneas ~285–311): el resumen pinta las clases y la tarde de `datos.horario[diaDeHoy()]`, y en finde muestra el mensaje de motivación en lugar de clases (FR-007)
-- [ ] T013 [US4] Verificar en app.js el `setInterval` de 60 s (líneas ~963–975): al cambiar de día se actualizan solos la fecha, el resumen y el día activo del horario (FR-009)
+- [x] T012 [US4] Verificar en app.js `dibujarHoy()` (líneas ~285–311): el resumen pinta las clases y la tarde de `datos.horario[diaDeHoy()]`, y en finde muestra el mensaje de motivación en lugar de clases (FR-007)
+- [x] T013 [US4] Verificar en app.js el `setInterval` de 60 s (líneas ~963–975): al cambiar de día se actualizan solos la fecha, el resumen y el día activo del horario (FR-009)
 
 **Punto de control**: US4 completa — el horario alimenta Hoy sin intervención
 

@@ -388,6 +388,8 @@ function dibujarListaHorario(tipo) {
       <span class="texto">${esc(f.texto)}</span>
       <span class="acciones">${BTN_EDITAR.replace('data-accion="editar"', `data-accion="editar" data-tipo="${tipo}"`)}${BTN_BORRAR.replace('data-accion="borrar"', `data-accion="borrar" data-tipo="${tipo}"`)}</span>
     </li>`).join('');
+  // Día vacío: la lista dice qué hacer, nunca queda en blanco (FR-008)
+  $(tipo === 'clases' ? '#clases-vacio' : '#tarde-vacio').hidden = filas.length !== 0;
 }
 
 $('#dias').addEventListener('click', (e) => {
