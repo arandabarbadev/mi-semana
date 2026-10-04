@@ -24,6 +24,15 @@ Borrar algo pide confirmación o se puede deshacer. Si los datos solo viven en u
 ### VII. Todo requisito se puede comprobar usándolo
 Cada spec incluye criterios de "hecho cuando" que se verifican con la app en la mano, sin mirar el código.
 
+### VIII. Todo lo que se genera, lo tengo en mi carpeta
+- Cada archivo que crea o modifica el agente existe en la carpeta del proyecto abierta en VS Code, en mi portátil: las specs, planes, tareas y constitución de Spec Kit, y el código. Tengo que poder abrirlo, leerlo y editarlo desde el explorador de VS Code en cuanto el agente lo termina.
+- Nunca se crea ni se modifica nada solo en GitHub. Si el agente usa la API de GitHub o cualquier herramienta remota, lo que cambie allí tiene que estar también en mi carpeta local, y en ese mismo momento.
+- Al terminar cada comando de Spec Kit o cada tarea, el agente me dice qué archivos ha creado o cambiado y en qué ruta de mi carpeta están, para que vaya a revisarlos.
+- Si la carpeta abierta no es un repositorio Git conectado a mi GitHub, el agente se detiene, me lo explica y me dice cómo arreglarlo antes de seguir.
+- Ningún token, contraseña ni clave aparece en archivos, comandos o mensajes de commit.
+
+Motivo: el agente estaba trabajando sin que los archivos estuvieran en mi carpeta, y así no puedo revisar lo que se genera, que es la mitad de mi trabajo.
+
 ## Lecciones aprendidas
 <!-- Reglas técnicas obligatorias para el plan y la implementación. -->
 
@@ -38,4 +47,4 @@ Si la app tiene service worker, el HTML se pide a la red primero y la caché sol
 - Esta constitución tiene prioridad sobre cualquier plan o tarea. Si el plan la incumple, se dice en el Constitution Check y se justifica o se corrige.
 - Cada vez que un error me cueste tiempo, se añade aquí como lección nueva y se sube la versión.
 
-**Versión**: 1.0.0 | **Ratificada**: 2026-10-04 | **Última enmienda**: 2026-10-04
+**Versión**: 1.1.0 | **Ratificada**: 2026-10-04 | **Última enmienda**: 2026-10-04
