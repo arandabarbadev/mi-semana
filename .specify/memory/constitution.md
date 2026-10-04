@@ -1,50 +1,41 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Constitución personal de Rafa
+<!-- Vale para todas las apps que construyo, no solo para este proyecto. -->
 
-## Core Principles
+## Principios
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec antes que código
+Ninguna funcionalidad se implementa sin un spec.md que yo haya leído. La spec dice QUÉ y POR QUÉ, nunca CÓMO: en la spec no aparecen tecnologías, botones, colores ni pantallas. Todo eso va en el plan.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Privacidad
+El repositorio es público. Nunca se suben datos personales: ni mi email, ni nombres de profesores o compañeros, ni mis notas, tareas o dinero. Los datos del usuario viven en su navegador.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Sin dependencias por defecto
+HTML, CSS y JavaScript puros, sin librerías, frameworks, fuentes externas ni servicios de terceros. Usar uno es una excepción: se justifica por escrito en el plan, explicando qué problema resuelve y qué alternativa sin dependencias se descartó, y el cliente tiene que aprobarla. Nunca se añade una dependencia en silencio.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Móvil primero
+Se diseña para usarse con una mano, de pie, en el móvil. En el portátil también funciona, pero el móvil manda. Todo el texto en español.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Se entiende sin explicación
+Una persona que no ha visto la app la usa sin que nadie le explique nada. Cuando no hay datos, la pantalla dice qué hacer, nunca aparece vacía.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. El usuario no pierde datos sin enterarse
+Borrar algo pide confirmación o se puede deshacer. Si los datos solo viven en un navegador, la app lo dice claramente.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### VII. Todo requisito se puede comprobar usándolo
+Cada spec incluye criterios de "hecho cuando" que se verifican con la app en la mano, sin mirar el código.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Lecciones aprendidas
+<!-- Reglas técnicas obligatorias para el plan y la implementación. -->
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### L1. El atributo hidden siempre oculta
+Toda app incluye la regla CSS `[hidden] { display: none !important; }`. Motivo: un display en el CSS anulaba hidden y la app se quedaba atascada detrás de una pantalla de carga (pasó dos veces, en mi-semana y en mis-finanzas).
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+### L2. El HTML se pide a la red primero
+Si la app tiene service worker, el HTML se pide a la red primero y la caché solo se usa sin conexión. Motivo: la caché vieja impedía que llegaran los arreglos publicados.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+## Gobierno
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+- Esta constitución tiene prioridad sobre cualquier plan o tarea. Si el plan la incumple, se dice en el Constitution Check y se justifica o se corrige.
+- Cada vez que un error me cueste tiempo, se añade aquí como lección nueva y se sube la versión.
+
+**Versión**: 1.0.0 | **Ratificada**: 2026-10-04 | **Última enmienda**: 2026-10-04
