@@ -28,7 +28,7 @@ description: "Lista de tareas de la función Instalación y uso sin conexión"
 
 - [x] T005 Comprobar en vivo: manifiesto e iconos responden 200 con su tipo (quickstart punto 8)
 - [x] T006 Comprobar en vivo el offline real: fondo registrado → red cortada desde el navegador → recargar → la app pinta entera con datos sembrados (punto 4), con captura
-- [x] T007 ⭐ (Rafa, con el móvil): instalación en pantalla de inicio y apertura a pantalla completa (puntos 1-2)
+- [ ] T007 ⭐ (Rafa, con el móvil): instalación en pantalla de inicio y apertura a pantalla completa (puntos 1-2)
 
 ---
 
