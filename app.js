@@ -767,7 +767,7 @@ function dibujarNotas() {
               <li class="fila-nota" data-id="${esc(x.id)}">
                 <span class="examen">${esc(x.examen)}</span>
                 <span class="valor">${formatearNota(x.nota)}</span>
-                ${BTN_BORRAR.replace('data-accion="borrar"', 'data-accion="borrar-nota"')}
+                ${BTN_EDITAR.replace('data-accion="editar"', 'data-accion="editar-nota"')}${BTN_BORRAR.replace('data-accion="borrar"', 'data-accion="borrar-nota"')}
               </li>`).join('') + '</ul>'}
           ${exacta !== null ? `<p class="pie-medias" style="margin-top:10px">media ${formatearNota(Math.round(exacta * 100) / 100)} → <b>${formatearNota(mediaRedondeada(a.id))}</b></p>` : ''}
         </section>`;
@@ -808,6 +808,9 @@ $('#medias-contenido').addEventListener('click', (e) => {
   if (!btn) return;
   if (btn.dataset.accion === 'nueva-nota') {
     abrirModal('nota', { asignaturaId: btn.dataset.id });
+  } else if (btn.dataset.accion === 'editar-nota') {
+    const n = datos.notas.find(x => x.id === btn.closest('li').dataset.id);
+    if (n) abrirModal('nota', n);
   } else if (btn.dataset.accion === 'borrar-nota') {
     const id = btn.closest('li').dataset.id;
     const n = datos.notas.find(x => x.id === id);
@@ -930,7 +933,8 @@ $('#modal-form').addEventListener('submit', (e) => {
       }
       const nueva = {
         id: existente?.id || idNuevo(),
-        asignaturaId: existente?.asignaturaId || val('asignaturaId'),
+        // La asignatura del formulario manda: permite mover la nota de asignatura (FR-006)
+        asignaturaId: val('asignaturaId') || existente?.asignaturaId,
         examen: val('examen'),
         nota: numero,
         createdAt: existente?.createdAt || Date.now()
