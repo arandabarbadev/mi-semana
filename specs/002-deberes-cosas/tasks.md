@@ -42,8 +42,8 @@ description: "Lista de tareas de la función Deberes y cosas que hacer"
 
 ## Fase 4: Acabado
 
-- [ ] T010 Ejecutar el quickstart completo (17 puntos) con la app en la mano; anotar fallos para converge
-- [ ] T011 Pase de regresión: Horario, Exámenes y Notas siguen pintando tras el cambio
+- [x] T010 Ejecutar el quickstart completo (17 puntos) con la app en la mano; anotar fallos para converge
+- [x] T011 Pase de regresión: Horario, Exámenes y Notas siguen pintando tras el cambio
 
 ---
 

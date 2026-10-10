@@ -628,20 +628,22 @@ function filaCuenta(x) {
       ${urgente && dias > 0 ? '<span class="punto-urgente"></span>' : ''}
       <span class="dias">${cuenta}</span>
       <span class="asignatura">${esc(x.asignatura)}</span>
-      <span class="acciones">${BTN_BORRAR}</span>
+      <span class="acciones">${BTN_EDITAR}${BTN_BORRAR}</span>
     </li>`;
 }
 
 function dibujarExamenes() {
-  for (const [clave, listaSel, pasadosSel, numSel, avisoSel] of [
-    ['examenes', '#lista-examenes', '#lista-examenes-pasados', '#num-examenes-pasados', '#aviso-examenes'],
-    ['entregas', '#lista-entregas', '#lista-entregas-pasadas', '#num-entregas-pasadas', '#aviso-entregas']
+  for (const [clave, listaSel, pasadosSel, numSel, avisoSel, vacioSel] of [
+    ['examenes', '#lista-examenes', '#lista-examenes-pasados', '#num-examenes-pasados', '#aviso-examenes', '#examenes-vacio'],
+    ['entregas', '#lista-entregas', '#lista-entregas-pasadas', '#num-entregas-pasadas', '#aviso-entregas', '#entregas-vacio']
   ]) {
     const lista = datos[clave];
     const pend = lista.filter(x => diasQueFaltan(x.fecha) >= 0).sort((a, b) => a.fecha.localeCompare(b.fecha));
     const pas = lista.filter(x => diasQueFaltan(x.fecha) < 0).sort((a, b) => b.fecha.localeCompare(a.fecha));
 
     $(listaSel).innerHTML = pend.map(filaCuenta).join('');
+    // Sin pendientes: la lista dice qué hacer, nunca queda en blanco (FR-010)
+    $(vacioSel).hidden = pend.length !== 0;
     $(pasadosSel).innerHTML = pas.map(filaCuenta).join('');
     $(numSel).textContent = pas.length;
     $(pasadosSel).closest('details').hidden = pas.length === 0;
@@ -666,16 +668,21 @@ $('#examenes-tabs').addEventListener('click', (e) => {
 
 for (const sel of ['#lista-examenes', '#lista-examenes-pasados', '#lista-entregas', '#lista-entregas-pasadas']) {
   $(sel).addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-accion="borrar"]');
+    const btn = e.target.closest('button[data-accion]');
     if (!btn) return;
     const li = btn.closest('li');
     const clave = sel.includes('entregas') ? 'entregas' : 'examenes';
     const x = datos[clave].find(y => y.id === li.dataset.id);
-    if (x && confirm('¿Borrar "' + x.asignatura + '"?')) {
-      datos[clave] = datos[clave].filter(y => y.id !== x.id);
-      guardar();
-      dibujarExamenes();
-      dibujarHoy();
+    if (!x) return;
+    if (btn.dataset.accion === 'borrar') {
+      if (confirm('¿Borrar "' + x.asignatura + '"?')) {
+        datos[clave] = datos[clave].filter(y => y.id !== x.id);
+        guardar();
+        dibujarExamenes();
+        dibujarHoy();
+      }
+    } else if (btn.dataset.accion === 'editar') {
+      abrirModal(clave === 'entregas' ? 'entrega' : 'examen', x);
     }
   });
 }
@@ -840,8 +847,10 @@ function abrirModal(tipo, existente = null) {
   };
 
   const titulos = {
-    examen: 'Nuevo examen', entrega: 'Nueva entrega',
-    asignatura: existente ? 'Editar asignatura' : 'Nueva asignatura', nota: 'Nueva nota'
+    examen: existente ? 'Editar examen' : 'Nuevo examen',
+    entrega: existente ? 'Editar entrega' : 'Nueva entrega',
+    asignatura: existente ? 'Editar asignatura' : 'Nueva asignatura',
+    nota: existente ? 'Editar nota' : 'Nueva nota'
   };
   $('#modal-titulo').textContent = titulos[tipo];
 
