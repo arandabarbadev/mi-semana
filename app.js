@@ -244,7 +244,8 @@ $('#btn-importar').addEventListener('click', async () => {
       datos.notas.push({ ...n, asignaturaId: nuevoAsig });
     }
 
-    // Deberes pasadas no interesan
+    // Los deberes ya vencidos no se traen; el resumen avisa de cuántos se quedan fuera (FR-007)
+    const vencidosFuera = t.deberes.filter(d => d.fecha && diasQueFaltan(d.fecha) < 0).length;
     datos.deberes = datos.deberes.filter(d => !d.fecha || diasQueFaltan(d.fecha) >= 0);
 
     guardar();
@@ -252,7 +253,8 @@ $('#btn-importar').addEventListener('click', async () => {
     $('#panel-cuenta').hidden = true;
     const cuenta = [t.deberes.length + ' deberes', t.examenes.length + ' exámenes',
       t.entregas.length + ' entregas', t.asignaturas.length + ' asignaturas', t.notas.length + ' notas'];
-    alert('Traído de tus otras apps:\n· ' + cuenta.join('\n· ') + '\n\n(lo que ya estaba no se duplica)');
+    alert('Traído de tus otras apps:\n· ' + cuenta.join('\n· ') + '\n\n(lo que ya estaba no se duplica)'
+      + (vencidosFuera > 0 ? '\n\nNo se han traído ' + (vencidosFuera === 1 ? '1 deber vencido' : vencidosFuera + ' deberes vencidos') + ' (fecha pasada).' : ''));
   } catch (e) {
     estado('Aviso: fallo al importar (' + (e.code || 'error') + ')');
   }
